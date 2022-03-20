@@ -19,6 +19,7 @@ from kivy.animation import Animation
 def count(target):
     print(len(target.children))
 
+# To move the 'camera' the entire board is shifted.
 def moveMap(self, root):
     target0 = 350 - self.pos[0]
     target1 = 275 - self.pos[1]
@@ -77,107 +78,102 @@ def generateTile(angle, exitID, pos, width):
 
 # Function to calculate if the new tile 
 # would be placed on top of another
-def collides(rect1, rect2):
+def collides(position, root):
+    if position[0] in root.tiles:
+        if position[1] in root.tiles[position[0]]:
+                return True
+    return False
 
-    # Define boundries based on the passed arguments
-    pointx = rect1[0][0] + (rect1[1][0] / 2)
-    pointy = rect1[0][1] + (rect1[1][1] / 2)
-    r2x = (rect2[0][0]) + 25
-    r2y = (rect2[0][1]) + 25
-    r2w = (rect2[1][0]) - 25
-    r2h = (rect2[1][1]) - 25
+# Function to place a tile generated with generateTile() onto the board     
+def createTile(self, exitID):
+    vacant = True
 
-    #Return true if the the new spot is taken
-    if (pointx < r2x + r2w and pointx > r2x and pointy < r2y + r2h and pointy > r2y):
-        return True
-    #Return false if the new spot is available
-    else:
-        return False
-     
-def createTile(root, pos, width, height, level, angle, exitID):
-        vacant = True
+    tile = generateTile(self.angle, exitID, self.pos, self.width)
 
-        tile = generateTile(angle, exitID, pos, width)
+    # Use the collides() function to find vacant spot on the board.
+    #If the spot is taken by any of the tiles exit the loop
+    
+    if collides(tile["position"], self.parent):
+        vacant = False
+        
+    # If the spot is vacant create a new tile    
+    if vacant:
+        self.parent.add_widget(ImageButton(self.parent.tiles, source = 'hex' + str(tile["id"]) + '.png', pos = tile["position"], level = self.level + 1, angle = tile["newAngle"], exitId = tile["exitId"], adjacent = [self.pos]))
+        self.adjacent.append(tile["position"])
+    
 
-        # Use the collides() function to find vacant spot on the board.
-        #If the spot is takne by any of the tiles exit the loop
-        for child in root.children:
-            if collides(( tile["position"], [width, height]), (child.pos, child.size)):
-                vacant = False
-                break
-            
-        # If the spot is vacant create a new tile    
-        if vacant:
-            root.add_widget(ImageButton(source = 'hex' + str(tile["id"]) + '.png', pos = tile["position"], level = level + 1, angle = tile["newAngle"], exitId = tile["exitId"]))
-
-# Main class
 class MyGridLayout(GridLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    # Define the press() function
     def press(MyGridLayout):
         
-        #Find the map layer
         child = MyGridLayout.ids.map
 
-        #If the layer has children count how many there are
         if child.children:
             count(child)
+            print(child.tiles)
 
-        # If the layer has no children, create a new child
         else: 
-            child.add_widget(ImageButton(pos = [child.width/2 - 50, child.height/2]))
+            child.tiles = {child.width/2-50: {}}
+            child.add_widget(ImageButton(child.tiles, pos = [child.width/2 - 50, child.height/2]))
+            
+            
     
     def reset(MyGridLayout):
-        #Find the map layer
         MyGridLayout.ids.map.clear_widgets()
         MyGridLayout.ids.map.pos = [0,0]
         MyGridLayout.press()
 
-# Create the ImageButton class
 class ImageButton(ButtonBehavior, Image):
-    def __init__(self, **kwargs):
+    def __init__(self, tilesList, **kwargs):
         super().__init__(**kwargs)
         produce = Animation(opacity = 1, duration = .75)
         produce.start(self)
-    
-    # Define the press() function
+        if self.pos[0] not in tilesList:
+            tilesList[self.pos[0]] = {}
+        tilesList[self.pos[0]][self.pos[1]] = self
+        
+        
+
     def press(self):
         deactivate = Animation(opacity = 0.5, duration = .4)
+        activate = Animation (opacity = 1, duration = .4 )
 
-        # If the tile is active
         if(self.active):
-
+            
             moveMap(self, self.parent)
             
-            # Create new tiles, and deactivate itself
             for digit in str(self.exitId):
                 if digit == '0':
                     pass
                 else:
-                    createTile(self.parent, self.pos, self.width, self.height, self.level, self.angle, int(digit))
+                    createTile(self, int(digit))
 
-            self.active = False
-            deactivate.start(self)
+            for tile in self.adjacent:
+                if self.parent.tiles[tile[0]][tile[1]].current:
+                    self.parent.tiles[tile[0]][tile[1]].current = False
+                    for origTileAdj in self.parent.tiles[tile[0]][tile[1]].adjacent:
+                        if self.parent.tiles[origTileAdj[0]][origTileAdj[1]] != self:
+                            self.parent.tiles[origTileAdj[0]][origTileAdj[1]].active = False
+                            deactivate.start(self.parent.tiles[origTileAdj[0]][origTileAdj[1]])
+                self.parent.tiles[tile[0]][tile[1]].active = True
+                activate.start(self.parent.tiles[tile[0]][tile[1]])
+                
 
-        # If tiles is deactivated, do nothing    
+            self.current = True
+            
         else:
             pass
    
-    
-# Create the Button Class
 class Button(Button):
     Button_id = ObjectProperty(None)
     pass
 
-# Main App
 class MyApp(App):
     def build(self):
         Window.clearcolor = (0,0,0,1)
         return MyGridLayout()
 
-#Run app
 if __name__ == '__main__':
     MyApp().run()
-

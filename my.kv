@@ -3,6 +3,7 @@
 
     FloatLayout:
         id: base
+
         RelativeLayout:
             id: map
             name: 'Layout'
@@ -30,11 +31,14 @@
             size_x: 100
 
 <ImageButton>:
+    #set root map
     name: 'HexTile'
     level: 1
+    adjacent: []
     angle: 0
     exitId: 123
     active: True
+    current: False
     opacity: 0
     background_color: (0,0,0,0)
     on_press: root.press()

@@ -1,0 +1,55 @@
+<MyGridLayout>
+    cols: 1 
+
+    FloatLayout:
+        id: base
+        RelativeLayout:
+            id: map
+            name: 'Layout'
+    
+    GridLayout:
+        rows: 1
+        name: 'Menu'
+        size_hint: 1, None
+        height: 50
+
+        Button:
+            name: 'Button'
+            text: 'Start'
+            font_size: 32
+            on_press:  root.press()
+            size_hint: None, 1
+            size_x: 100
+        
+        Button:
+            name: 'Reset'
+            text: 'Reset'
+            font_size: 32
+            on_press:  root.reset()
+            size_hint: None, 1
+            size_x: 100
+
+<ImageButton>:
+    name: 'HexTile'
+    level: 1
+    angle: 0
+    exitId: 123
+    active: True
+    opacity: 0
+    background_color: (0,0,0,0)
+    on_press: root.press()
+    source: 'Hex9.png'
+    text: "Submit"
+    font_size: 32
+    size_hint: None, None
+    canvas.before:
+        PushMatrix
+        Rotate:
+            angle: self.angle
+            origin: self.center
+    canvas.after:
+        PopMatrix
+
+
+
+    

@@ -41,23 +41,26 @@ def generateTile(angle, exitID, pos, width):
     if hex == 3 or hex == 6 or hex == 7 or hex == 8:
         tile["exitId"] += 3
     if (angle == 0 and exitID == 1) or (angle == 60 and exitID == 2) or (angle == 120 and exitID == 3):
-        tile["position"] = [round(pos[0] + width / 2, 2), round(pos[1] + (math.tan(1.0472) * width / 2), 2)]
+        tile["position"] = [(pos[0] + width / 2), (pos[1] + (math.tan(1.0472) * width / 2))]
         tile["newAngle"] = 60
     if (angle == 60 and exitID == 1) or (angle == 120 and exitID == 2) or (angle == 180 and exitID == 3):
-        tile["position"] = [round(pos[0] - width / 2, 2), pos[1] + round(math.tan(1.0472) * width / 2, 2)]
+        tile["position"] = [(pos[0] - width / 2), (pos[1] + (math.tan(1.0472) * width / 2))]
         tile["newAngle"] = 120
     if (angle == 120 and exitID == 1) or (angle == 180 and exitID == 2) or (angle == 240 and exitID == 3):
-        tile["position"] = [round(pos[0] - width, 2), round(pos[1], 2)]
+        tile["position"] = [(pos[0] - width), (pos[1])]
         tile["newAngle"] = 180
     if (angle == 180 and exitID == 1) or (angle == 240 and exitID == 2) or (angle == 300 and exitID == 3):
-        tile["position"] = [round(pos[0] - width / 2, 2), pos[1] - round(math.tan(1.0472) * width / 2, 2)]
+        tile["position"] = [(pos[0] - width / 2), (pos[1] - (math.tan(1.0472) * width / 2))]
         tile["newAngle"] = 240
     if (angle == 240 and exitID == 1) or (angle == 300 and exitID == 2) or (angle == 0 and exitID == 3):
-        tile["position"] = [round(pos[0] + width / 2, 2), pos[1] - round(math.tan(1.0472) * width / 2, 2)]
+        tile["position"] = [(pos[0] + width / 2), (pos[1] - (math.tan(1.0472) * width / 2))]
         tile["newAngle"] = 300
     if (angle == 300 and exitID == 1) or (angle == 0 and exitID == 2) or (angle == 60 and exitID == 3):
-        tile["position"] = [round(pos[0] + width, 2), round(pos[1],2)]
+        tile["position"] = [(pos[0] + width), (pos[1])]
         tile["newAngle"] = 0
+    tile["position"][0] = round(tile["position"][0], 2)
+    tile["position"][1] = round(tile["position"][1], 2)
+
     return tile
 
 # Function to calculate if the new tile 
@@ -65,7 +68,7 @@ def generateTile(angle, exitID, pos, width):
 def collides(position, root):
     if position[0] in root.tiles:
         if position[1] in root.tiles[position[0]]:
-                return True
+            return True
     return False
 
 # Function to place a tile generated with generateTile() onto the board     

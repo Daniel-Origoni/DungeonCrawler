@@ -12,19 +12,20 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.button import Button
 from kivy.properties import ObjectProperty
 from kivy.animation import Animation
-
+ROTATION_ANGLE = 60
 
 # Function to count the hex Tiles
 # Used for debuging
 def count(target):
     print(len(target.children))
 
-# To move the 'camera' the entire board is shifted.
+# To move the 'camera,' the entire board is shifted.
 def moveMap(self, root):
     move = Animation(pos = [(350 - self.pos[0]),(275 - self.pos[1])], duration = .4)
-
     move.start(root)
 
+# Function to generate a new, random, tile.
+# It calculates its new angle and position based on the previous tile.
 def generateTile(angle, exitID, pos, width):
     hex = randint(1, 8)
     tile = {
@@ -33,41 +34,57 @@ def generateTile(angle, exitID, pos, width):
         "position": [0, 0],
         "newAngle": 0,
     }
-        
+    angle = tile["newAngle"] = ((angle - (ROTATION_ANGLE * (exitID - 2)) + 360)%360)
+
+    # Establish exitId depeding on the tile selected, to be used when generating tiles based on this one.
     if hex == 4 or hex == 5 or hex == 7 or hex == 8:
         tile["exitId"] += 100
     if hex == 2 or hex == 5 or hex == 6 or hex == 8:
         tile["exitId"] += 20
     if hex == 3 or hex == 6 or hex == 7 or hex == 8:
         tile["exitId"] += 3
-    if (angle == 0 and exitID == 1) or (angle == 60 and exitID == 2) or (angle == 120 and exitID == 3):
-        tile["position"] = [(pos[0] + width / 2), (pos[1] + (math.tan(1.0472) * width / 2))]
-        tile["newAngle"] = 60
-    if (angle == 60 and exitID == 1) or (angle == 120 and exitID == 2) or (angle == 180 and exitID == 3):
-        tile["position"] = [(pos[0] - width / 2), (pos[1] + (math.tan(1.0472) * width / 2))]
-        tile["newAngle"] = 120
-    if (angle == 120 and exitID == 1) or (angle == 180 and exitID == 2) or (angle == 240 and exitID == 3):
-        tile["position"] = [(pos[0] - width), (pos[1])]
-        tile["newAngle"] = 180
-    if (angle == 180 and exitID == 1) or (angle == 240 and exitID == 2) or (angle == 300 and exitID == 3):
-        tile["position"] = [(pos[0] - width / 2), (pos[1] - (math.tan(1.0472) * width / 2))]
-        tile["newAngle"] = 240
-    if (angle == 240 and exitID == 1) or (angle == 300 and exitID == 2) or (angle == 0 and exitID == 3):
-        tile["position"] = [(pos[0] + width / 2), (pos[1] - (math.tan(1.0472) * width / 2))]
-        tile["newAngle"] = 300
-    if (angle == 300 and exitID == 1) or (angle == 0 and exitID == 2) or (angle == 60 and exitID == 3):
+
+    if (angle == 0):
         tile["position"] = [(pos[0] + width), (pos[1])]
-        tile["newAngle"] = 0
+    elif (angle == 60):
+        tile["position"] = [(pos[0] + width / 2), (pos[1] + (math.tan(1.0472) * width / 2))]
+    elif (angle == 120):
+        tile["position"] = [(pos[0] - width / 2), (pos[1] + (math.tan(1.0472) * width / 2))]
+    elif (angle == 180):
+        tile["position"] = [(pos[0] - width), (pos[1])]
+    elif (angle == 240):
+        tile["position"] = [(pos[0] - width / 2), (pos[1] - (math.tan(1.0472) * width / 2))]
+    else:
+        tile["position"] = [(pos[0] + width / 2), (pos[1] - (math.tan(1.0472) * width / 2))]
+    
     tile["position"][0] = round(tile["position"][0], 2)
     tile["position"][1] = round(tile["position"][1], 2)
 
     return tile
 
 # Function to calculate if the new tile 
-# would be placed on top of another
-def collides(position, root):
+# would be placed on top of another and
+# if the tiles have matching exits 
+def collides(position, self, exitID):
+    angle = self.angle
+    root = self.parent
     if position[0] in root.tiles:
         if position[1] in root.tiles[position[0]]:
+            adjacent = False
+            target = root.tiles[position[0]][position[1]]
+            angle = (angle + 120 - (ROTATION_ANGLE * exitID) + 360)%360
+
+            if target.angle == angle:
+                adjacent = True
+            else:
+                relAng = (target.angle - angle + 360)%360
+                for digit in str(target.exitId):
+                    if (digit == '1' and relAng == 120) or (digit == '2' and relAng == 180) or (digit == '3' and relAng == 240):
+                        adjacent = True
+                        pass
+            if adjacent:
+                self.adjacent.append(target.pos)
+                target.adjacent.append(self.pos)
             return True
     return False
 
@@ -78,10 +95,9 @@ def createTile(self, exitID):
 
     # Use the collides() function to find vacant spot on the board.
     #If the spot is taken by any of the tiles exit the loop
-    
-    if collides(tile["position"], self.parent):
+    if collides(tile["position"], self, exitID):
         vacant = False
-        
+
     # If the spot is vacant create a new tile    
     if vacant:
         self.parent.add_widget(ImageButton(self.parent.tiles, source = 'hex' + str(tile["id"]) + '.png', pos = tile["position"], angle = tile["newAngle"], exitId = tile["exitId"], adjacent = [self.pos]))
@@ -93,12 +109,11 @@ class MyGridLayout(GridLayout):
         super().__init__(**kwargs)
 
     def press(MyGridLayout):
-        produce = Animation(opacity = 1, duration = .75)
+        produce = Animation(opacity = 1, duration = 1)
         child = MyGridLayout.ids.map
 
         if child.children:
             count(child)
-            print(child.tiles)
         else: 
             child.tiles = {child.width/2-50: {}}
             child.add_widget(ImageButton(child.tiles, pos = [round(child.width/2, 2) - 50, round(child.height/2, 2)]))
@@ -113,36 +128,42 @@ class MyGridLayout(GridLayout):
 class ImageButton(ButtonBehavior, Image):
     def __init__(self, tilesList, **kwargs):
         super().__init__(**kwargs)
-        
-        
+    
         if self.pos[0] not in tilesList:    
             tilesList[self.pos[0]] = {}
         tilesList[self.pos[0]][self.pos[1]] = self
         
     def press(self):
-        deactivate = Animation(opacity = 0.5, duration = .4)
-        activate = Animation (opacity = 1, duration = .4 )
+        deactivate = Animation(opacity = 0.1, duration = .4)
+        activateAdjacent = Animation(opacity = 0.50, duration = .4)
+        activateCurrent = Animation(opacity = 1, duration = .4)
 
         if(self.active):
             moveMap(self, self.parent)
             
-            for digit in str(self.exitId):
-                if digit == '0':
-                    pass
-                else: 
-                    createTile(self, int(digit))
+            if not self.isParent:
+                print("generating children")
+                count(self.parent)
+                for digit in str(self.exitId):
+                    if digit == '0':
+                        pass
+                    else: 
+                        createTile(self, int(digit))
+                        self.isParent = True
 
             for tile in self.adjacent:
-                if self.parent.tiles[tile[0]][tile[1]].current:
-                    self.parent.tiles[tile[0]][tile[1]].current = False
-                    
-                    for origTileAdj in self.parent.tiles[tile[0]][tile[1]].adjacent:
-                        if self.parent.tiles[origTileAdj[0]][origTileAdj[1]] != self:
-                            self.parent.tiles[origTileAdj[0]][origTileAdj[1]].active = False
-                            deactivate.start(self.parent.tiles[origTileAdj[0]][origTileAdj[1]])
-                self.parent.tiles[tile[0]][tile[1]].active = True
-                activate.start(self.parent.tiles[tile[0]][tile[1]])
+                adjacentTile = self.parent.tiles[tile[0]][tile[1]]
+                if adjacentTile.current:
+                    adjacentTile.current = False
+                    for origTileAdj in adjacentTile.adjacent:
+                        originalTile = self.parent.tiles[origTileAdj[0]][origTileAdj[1]]
+                        if originalTile != self:
+                            originalTile.active = False
+                            deactivate.start(originalTile)
+                adjacentTile.active = True
+                activateAdjacent.start(adjacentTile)
             self.current = True
+            activateCurrent.start(self)
         else:
             pass
    

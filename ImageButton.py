@@ -20,7 +20,6 @@ def generateTile(angle, exitID, pos, width):
         "position": [0, 0],
         "newAngle": 0,
     }
-
     angle = tile["newAngle"] = ((angle - (ROTATION_ANGLE * (exitID - 2)) + 360)%360)
 
     # Establish exitId depeding on the tile selected, to be used when generating tiles based on this one.
@@ -44,8 +43,7 @@ def generateTile(angle, exitID, pos, width):
     else:
         tile["position"] = [(pos[0] + width / 2), (pos[1] - (math.tan(1.0472) * width / 2))]
     
-    tile["position"][0] = round(tile["position"][0], 2)
-    tile["position"][1] = round(tile["position"][1], 2)
+    tile["position"] = [round(tile["position"][0], 2),round(tile["position"][1], 2)]
 
     return tile
 
@@ -77,18 +75,20 @@ def collides(position, self, exitID):
 
 # Function to place a tile generated with generateTile() onto the board     
 def createTile(self, exitID):
-    vacant = True
     tile = generateTile(self.angle, exitID, self.pos, self.width)
 
     # Use the collides() function to find vacant spot on the board.
     #If the spot is taken by any of the tiles exit the loop
     if collides(tile["position"], self, exitID):
-        vacant = False
-
-    # If the spot is vacant create a new tile    
-    if vacant:
-        self.parent.add_widget(ImageButton(self.parent.tiles, source = 'hex' + str(tile["id"]) + '.png', pos = tile["position"], angle = tile["newAngle"], exitId = tile["exitId"], adjacent = [self.pos]))
-        self.adjacent.append(tile["position"])
+        return
+        
+    self.parent.add_widget(ImageButton( self.parent.tiles, 
+                                        source = 'hex' + str(tile["id"]) + '.png', 
+                                        pos = tile["position"], 
+                                        angle = tile["newAngle"], 
+                                        exitId = tile["exitId"], 
+                                        adjacent = [self.pos]))
+    self.adjacent.append(tile["position"])
 
 class ImageButton(ButtonBehavior, Image):
     def __init__(self, tilesList, **kwargs):
@@ -99,8 +99,8 @@ class ImageButton(ButtonBehavior, Image):
         tilesList[self.pos[0]][self.pos[1]] = self
         
     def press(self):
-        deactivate = Animation(opacity = 0.1, duration = .4)
-        activateAdjacent = Animation(opacity = 0.5, duration = .4)
+        deactivate = Animation(opacity = 0.3, duration = .4)
+        activateAdjacent = Animation(opacity = 0.7, duration = .4)
         activateCurrent = Animation(opacity = 1, duration = .4)
 
         if(self.active):

@@ -8,7 +8,13 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.button import Button
 from kivy.properties import ObjectProperty
 from kivy.animation import Animation
-from ImageButton import ImageButton
+from HexTile import HexTile
+from MapLayer import MapLayer
+from kivy.config import Config
+
+Config.set("graphics", "width", "1000")
+Config.set("graphics", "height", "1000")
+Config.write()
 
 # Function to count the hex Tiles
 # Used for debuging
@@ -29,12 +35,13 @@ class MyGridLayout(GridLayout):
         else:
             child.tiles = {child.width / 2 - 50: {}}
             child.add_widget(
-                ImageButton(
+                HexTile(
                     child.tiles,
                     pos=[round(child.width / 2, 2) - 50, round(child.height / 2, 2)],
                 )
             )
             produce.start(child.tiles[child.width / 2 - 50][child.height / 2])
+            print(child.size)
 
     def reset(MyGridLayout):
         MyGridLayout.ids.map.clear_widgets()

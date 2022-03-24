@@ -1,14 +1,10 @@
 import math
+from MapLayer import MapLayer
 from random import randint
 from kivy.uix.image import Image
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.animation import Animation
 ROTATION_ANGLE = 60
-
-# To move the 'camera,' the entire board is shifted.
-def moveMap(self, root):
-    move = Animation(pos = [(350 - self.pos[0]),(275 - self.pos[1])], duration = .4)
-    move.start(root)
 
 # Function to generate a new, random, tile.
 # It calculates its new angle and position based on the previous tile.
@@ -82,7 +78,7 @@ def createTile(self, exitID):
     if collides(tile["position"], self, exitID):
         return
         
-    self.parent.add_widget(ImageButton( self.parent.tiles, 
+    self.parent.add_widget(HexTile( self.parent.tiles, 
                                         source = 'hex' + str(tile["id"]) + '.png', 
                                         pos = tile["position"], 
                                         angle = tile["newAngle"], 
@@ -90,21 +86,21 @@ def createTile(self, exitID):
                                         adjacent = [self.pos]))
     self.adjacent.append(tile["position"])
 
-class ImageButton(ButtonBehavior, Image):
+class HexTile(ButtonBehavior, Image):
     def __init__(self, tilesList, **kwargs):
         super().__init__(**kwargs)
-    
+        print(self.pos)
         if self.pos[0] not in tilesList:    
             tilesList[self.pos[0]] = {}
         tilesList[self.pos[0]][self.pos[1]] = self
         
     def press(self):
-        deactivate = Animation(opacity = 0.3, duration = .4)
-        activateAdjacent = Animation(opacity = 0.7, duration = .4)
+        deactivate = Animation(opacity = 0.5, duration = .4)
+        activateAdjacent = Animation(opacity = 0.8, duration = .4)
         activateCurrent = Animation(opacity = 1, duration = .4)
 
         if(self.active):
-            moveMap(self, self.parent)
+            self.parent.moveMap(self)
             
             if not self.isParent:
                 for digit in str(self.exitId):

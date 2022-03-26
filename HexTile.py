@@ -89,7 +89,6 @@ def createTile(self, exitID):
 class HexTile(ButtonBehavior, Image):
     def __init__(self, tilesList, **kwargs):
         super().__init__(**kwargs)
-        print(self.pos)
         if self.pos[0] not in tilesList:    
             tilesList[self.pos[0]] = {}
         tilesList[self.pos[0]][self.pos[1]] = self

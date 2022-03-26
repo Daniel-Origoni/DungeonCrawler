@@ -1,7 +1,6 @@
 from kivy.animation import Animation
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.core.window import Window
-from kivy.clock import Clock
 import numpy as np
 
 
@@ -12,14 +11,10 @@ class MapLayer(RelativeLayout):
         self._keyboard.bind(
             on_key_down=self.on_keyboard_down, on_key_up=self.on_keyboard_up
         )
-        Clock.schedule_interval(self.update, 1.0 / 30.0)
 
     def _keyboard_closed(self):
         self._keyboard.unbind(on_key_down=self._on_keyboard_down)
         self._keyboard = None
-
-    def __del__(self):
-        Clock.unschedule(self.update)
 
     def on_keyboard_down(self, keyboard, keycode, text, modifiers):
         if keycode[1] == "d":
@@ -47,7 +42,7 @@ class MapLayer(RelativeLayout):
             return False
         return True
 
-    def update(self, x):
+    def update(self):
         if self.rightPressed:
             self.x -= 10
         if self.leftPressed:
@@ -59,11 +54,10 @@ class MapLayer(RelativeLayout):
 
     # To move the 'camera,' the entire board is shifted.
     def moveMap(self, tile):
-        print(tile)
         move = Animation(
             pos=[
-                ((self.size[0] / 2) - tile.pos[0] - (tile.size[0] / 2)),
-                ((self.size[1] / 2) - tile.pos[1] - (tile.size[1] / 2)),
+                ((self.size[0] / 2) - tile.pos[0] - tile.width / 2),
+                ((self.size[1] / 2) - tile.pos[1] - tile.width / 4),
             ],
             duration=0.4,
         )

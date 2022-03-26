@@ -11,9 +11,10 @@ from kivy.animation import Animation
 from HexTile import HexTile
 from MapLayer import MapLayer
 from kivy.config import Config
+from kivy.clock import Clock
 
-Config.set("graphics", "width", "1000")
-Config.set("graphics", "height", "1000")
+Config.set("graphics", "width", "800")
+Config.set("graphics", "height", "400")
 Config.write()
 
 # Function to count the hex Tiles
@@ -25,6 +26,10 @@ def count(target):
 class MyGridLayout(GridLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        Clock.schedule_interval(self.update, 1.0 / 30.0)
+
+    def __del__(self):
+        Clock.unschedule(self.update)
 
     def press(MyGridLayout):
         produce = Animation(opacity=1, duration=1)
@@ -41,12 +46,14 @@ class MyGridLayout(GridLayout):
                 )
             )
             produce.start(child.tiles[child.width / 2 - 50][child.height / 2])
-            print(child.size)
 
     def reset(MyGridLayout):
         MyGridLayout.ids.map.clear_widgets()
         MyGridLayout.ids.map.pos = [0, 0]
         MyGridLayout.press()
+
+    def update(self, x):
+        MapLayer.update(self.ids.map)
 
 
 class Button(Button):

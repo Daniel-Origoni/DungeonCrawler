@@ -11,7 +11,7 @@ class MapLayer(RelativeLayout):
         self._keyboard.bind(
             on_key_down=self.on_keyboard_down, on_key_up=self.on_keyboard_up
         )
-        self.tileList = {0: 10, 1: 10, 2: 10, 3: 10, 4: 10, 5: 10, 6: 10, 7: 10, 8: 10}
+        self.remainingTiles = {0: 10, 1: 10, 2: 10, 3: 10, 4: 10, 5: 10, 6: 10, 7: 10, 8: 10}
 
     def _keyboard_closed(self):
         self._keyboard.unbind(on_key_down=self._on_keyboard_down)

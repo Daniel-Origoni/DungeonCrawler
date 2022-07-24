@@ -7,7 +7,9 @@ ROTATION_ANGLE = 60
 
 # To move the 'camera,' the entire board is shifted.
 def moveMap(self, root):
-    move = Animation(pos = [(350 - self.pos[0]),(275 - self.pos[1])], duration = .4)
+    x = (root.parent.size[0]/2) - (self.size[0]/2) - self.pos[0]
+    y = (root.parent.size[1]/2) - self.pos[1]
+    move = Animation(pos = [x , y], duration = .4)
     move.start(root)
 
 # Function to generate a new, random, tile.
@@ -82,30 +84,23 @@ def createTile(self, exitID):
     if collides(tile["position"], self, exitID):
         return
         
-    self.parent.add_widget(ImageButton( self.parent.tiles, 
+    self.parent.add_widget(HexTile(     self.parent.tiles, 
                                         source = 'hex' + str(tile["id"]) + '.png', 
                                         pos = tile["position"], 
                                         angle = tile["newAngle"], 
                                         exitId = tile["exitId"], 
-                                        adjacent = [self.pos]))
+                                        adjacent = [self.pos]
+                                    ))
+
     self.adjacent.append(tile["position"])
 
-<<<<<<< Updated upstream:ImageButton.py
-class ImageButton(ButtonBehavior, Image):
-    def __init__(self, tilesList, **kwargs):
-        super().__init__(**kwargs)
-    
-        if self.pos[0] not in tilesList:    
-            tilesList[self.pos[0]] = {}
-        tilesList[self.pos[0]][self.pos[1]] = self
-=======
 class HexTile(ButtonBehavior, Image):
-    def __init__(self, tiles, tileList, **kwargs):
+    def __init__(self, tiles, **kwargs):
         super().__init__(**kwargs)
+
         if self.pos[0] not in tiles:    
             tiles[self.pos[0]] = {}
         tiles[self.pos[0]][self.pos[1]] = self
->>>>>>> Stashed changes:HexTile.py
         
     def press(self):
         deactivate = Animation(opacity = 0.3, duration = .4)

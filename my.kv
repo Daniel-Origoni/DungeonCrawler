@@ -3,11 +3,10 @@
 
     FloatLayout:
         id: base
-
-        RelativeLayout:
+        MapLayer:
             id: map
             name: 'Layout'
-    
+            
     GridLayout:
         rows: 1
         name: 'Menu'
@@ -30,7 +29,12 @@
             size_hint: None, 1
             size_x: 100
 
-<ImageButton>:
+<MapLayer>
+    rightPressed: False
+    leftPressed: False
+    upPressed: False
+    downPressed: False
+<HexTile>:
     name: 'HexTile'
     adjacent: []
     angle: 0

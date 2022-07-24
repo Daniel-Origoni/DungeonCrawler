@@ -90,6 +90,7 @@ def createTile(self, exitID):
                                         adjacent = [self.pos]))
     self.adjacent.append(tile["position"])
 
+<<<<<<< Updated upstream:ImageButton.py
 class ImageButton(ButtonBehavior, Image):
     def __init__(self, tilesList, **kwargs):
         super().__init__(**kwargs)
@@ -97,6 +98,14 @@ class ImageButton(ButtonBehavior, Image):
         if self.pos[0] not in tilesList:    
             tilesList[self.pos[0]] = {}
         tilesList[self.pos[0]][self.pos[1]] = self
+=======
+class HexTile(ButtonBehavior, Image):
+    def __init__(self, tiles, tileList, **kwargs):
+        super().__init__(**kwargs)
+        if self.pos[0] not in tiles:    
+            tiles[self.pos[0]] = {}
+        tiles[self.pos[0]][self.pos[1]] = self
+>>>>>>> Stashed changes:HexTile.py
         
     def press(self):
         deactivate = Animation(opacity = 0.3, duration = .4)

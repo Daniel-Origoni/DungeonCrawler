@@ -1,8 +1,10 @@
+from email.policy import default
 import math
 from random import randint
 from kivy.uix.image import Image
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.animation import Animation
+from sympy import rem
 ROTATION_ANGLE = 60
 
 # To move the 'camera,' the entire board is shifted.
@@ -14,8 +16,31 @@ def moveMap(self, root):
 
 # Function to generate a new, random, tile.
 # It calculates its new angle and position based on the previous tile.
-def generateTile(angle, exitID, pos, width):
-    hex = randint(1, 8)
+def generateTile(remainingTiles, angle, exitID, pos, width):
+    if len(remainingTiles) == 0:
+        return
+    numberOfTiles = 0
+    for typeOfTile in remainingTiles:
+        numberOfTiles += (remainingTiles.get(typeOfTile))
+
+    tileNumber = randint(1, numberOfTiles)
+    
+    hex = 0
+
+    print("Tile number: " + str(tileNumber))
+    for typeOfTile in remainingTiles:
+        if remainingTiles.get(typeOfTile) < tileNumber:
+            print("Remaning tiles: " + str(remainingTiles.get(typeOfTile)))
+            tileNumber -= remainingTiles.get(typeOfTile)
+        else:
+            hex = typeOfTile
+            remainingTiles[typeOfTile] -= 1
+            if remainingTiles[typeOfTile] == 0:
+                del remainingTiles[typeOfTile]
+            break
+
+    print(hex)
+
     tile = {
         "id": hex,
         "exitId": 0,
@@ -77,7 +102,9 @@ def collides(position, self, exitID):
 
 # Function to place a tile generated with generateTile() onto the board     
 def createTile(self, exitID):
-    tile = generateTile(self.angle, exitID, self.pos, self.width)
+    tile = generateTile(self.parent.remainingTiles, self.angle, exitID, self.pos, self.width)
+    if tile == None:
+        return
 
     # Use the collides() function to find vacant spot on the board.
     #If the spot is taken by any of the tiles exit the loop

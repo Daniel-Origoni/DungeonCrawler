@@ -17,29 +17,29 @@ def moveMap(self, root):
 # Function to generate a new, random, tile.
 # It calculates its new angle and position based on the previous tile.
 def generateTile(remainingTiles, angle, exitID, pos, width):
+    print("Tiles remaining: " + str(len(remainingTiles)))
     if len(remainingTiles) == 0:
         return
     numberOfTiles = 0
     for typeOfTile in remainingTiles:
         numberOfTiles += (remainingTiles.get(typeOfTile))
 
-    tileNumber = randint(1, numberOfTiles)
-    
+    #tileNumber = randint(1, numberOfTiles)
+    tilesNumber = 4
     hex = 0
 
     print("Tile number: " + str(tileNumber))
     for typeOfTile in remainingTiles:
         if remainingTiles.get(typeOfTile) < tileNumber:
-            print("Remaning tiles: " + str(remainingTiles.get(typeOfTile)))
             tileNumber -= remainingTiles.get(typeOfTile)
         else:
             hex = typeOfTile
             remainingTiles[typeOfTile] -= 1
             if remainingTiles[typeOfTile] == 0:
                 del remainingTiles[typeOfTile]
-            break
+            pass
 
-    print(hex)
+    print("Remaining tiles: " + str(remainingTiles))
 
     tile = {
         "id": hex,

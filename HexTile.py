@@ -1,10 +1,8 @@
-from email.policy import default
 import math
 from random import randint
 from kivy.uix.image import Image
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.animation import Animation
-from sympy import rem
 ROTATION_ANGLE = 60
 
 # To move the 'camera,' the entire board is shifted.
@@ -16,46 +14,20 @@ def moveMap(self, root):
 
 # Function to generate a new, random, tile.
 # It calculates its new angle and position based on the previous tile.
-def generateTile(remainingTiles, angle, exitID, pos, width):
-    print("Tiles remaining: " + str(len(remainingTiles)))
-    if len(remainingTiles) == 0:
-        return
-    numberOfTiles = 0
-    for typeOfTile in remainingTiles:
-        numberOfTiles += (remainingTiles.get(typeOfTile))
-
-    #tileNumber = randint(1, numberOfTiles)
-    tilesNumber = 4
-    hex = 0
-
-    print("Tile number: " + str(tileNumber))
-    for typeOfTile in remainingTiles:
-        if remainingTiles.get(typeOfTile) < tileNumber:
-            tileNumber -= remainingTiles.get(typeOfTile)
-        else:
-            hex = typeOfTile
-            remainingTiles[typeOfTile] -= 1
-            if remainingTiles[typeOfTile] == 0:
-                del remainingTiles[typeOfTile]
-            pass
-
-    print("Remaining tiles: " + str(remainingTiles))
+def generateTile(exitID, self):
+    remainingTiles = self.parent.remainingTiles
+    angle = self.angle
+    pos = self.pos
+    width = self.width
 
     tile = {
-        "id": hex,
+        "id": 0,
         "exitId": 0,
         "position": [0, 0],
         "newAngle": 0,
     }
+    
     angle = tile["newAngle"] = ((angle - (ROTATION_ANGLE * (exitID - 2)) + 360)%360)
-
-    # Establish exitId depeding on the tile selected, to be used when generating tiles based on this one.
-    if hex == 4 or hex == 5 or hex == 7 or hex == 8:
-        tile["exitId"] += 100
-    if hex == 2 or hex == 5 or hex == 6 or hex == 8:
-        tile["exitId"] += 20
-    if hex == 3 or hex == 6 or hex == 7 or hex == 8:
-        tile["exitId"] += 3
 
     if (angle == 0):
         tile["position"] = [(pos[0] + width), (pos[1])]
@@ -71,6 +43,43 @@ def generateTile(remainingTiles, angle, exitID, pos, width):
         tile["position"] = [(pos[0] + width / 2), (pos[1] - (math.tan(1.0472) * width / 2))]
     
     tile["position"] = [round(tile["position"][0], 2),round(tile["position"][1], 2)]
+
+     # Use the collides() function to find vacant spot on the board.
+    #If the spot is taken by any of the tiles exit the loop
+
+    if collides(tile["position"], self, exitID):
+        return
+
+    print("Tiles remaining: " + str(len(remainingTiles)))
+    if len(remainingTiles) == 0:
+        return
+    numberOfTiles = 0
+    for typeOfTile in remainingTiles:
+        numberOfTiles += (remainingTiles.get(typeOfTile))
+
+    tileNumber = randint(1, numberOfTiles)
+
+    print("Tile number: " + str(tileNumber))
+    for typeOfTile in remainingTiles:
+        if remainingTiles.get(typeOfTile) < tileNumber:
+            tileNumber -= remainingTiles.get(typeOfTile)
+        else:
+            tile["id"] = typeOfTile
+            remainingTiles[typeOfTile] -= 1
+            if remainingTiles[typeOfTile] == 0:
+                del remainingTiles[typeOfTile]
+            break
+
+    print("Remaining tiles: " + str(remainingTiles))
+
+    # Establish exitId depeding on the tile selected, to be used when generating tiles based on this one.
+    if tile["id"] == 4 or tile["id"] == 5 or tile["id"] == 7 or tile["id"] == 8:
+        tile["exitId"] += 100
+    if tile["id"] == 2 or tile["id"] == 5 or tile["id"] == 6 or tile["id"] == 8:
+        tile["exitId"] += 20
+    if tile["id"] == 3 or tile["id"] == 6 or tile["id"] == 7 or tile["id"] == 8:
+        tile["exitId"] += 3
+
 
     return tile
 
@@ -102,13 +111,8 @@ def collides(position, self, exitID):
 
 # Function to place a tile generated with generateTile() onto the board     
 def createTile(self, exitID):
-    tile = generateTile(self.parent.remainingTiles, self.angle, exitID, self.pos, self.width)
+    tile = generateTile(exitID, self)
     if tile == None:
-        return
-
-    # Use the collides() function to find vacant spot on the board.
-    #If the spot is taken by any of the tiles exit the loop
-    if collides(tile["position"], self, exitID):
         return
         
     self.parent.add_widget(HexTile(     self.parent.tiles, 

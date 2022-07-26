@@ -23,6 +23,7 @@ def count(target):
 class MyGridLayout(GridLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        Clock.schedule_interval(self.update, 1.0 / 30.0)
 
     def press(MyGridLayout):
         produce = Animation(opacity=1, duration=1)
@@ -34,15 +35,30 @@ class MyGridLayout(GridLayout):
             child.tiles = {child.width / 2 - 50: {}}
             newTile = HexTile(
                 child.tiles,
-                pos=[round(child.width / 2, 2) - 50, round(child.height / 2, 2)]
+                pos=[round(child.width / 2, 2) - 50, round(child.height / 2, 2)],
             )
             child.add_widget(newTile)
-            produce.start(child.tiles[round(child.width / 2, 2) - 50][round(child.height / 2, 2)])
+            produce.start(
+                child.tiles[round(child.width / 2, 2) - 50][round(child.height / 2, 2)]
+            )
 
     def reset(MyGridLayout):
         MyGridLayout.ids.map.clear_widgets()
         MyGridLayout.ids.map.pos = [0, 0]
+        MyGridLayout.ids.map.remainingTiles = {
+            1: 4,
+            2: 1,
+            3: 1,
+            4: 1,
+            5: 1,
+            6: 1,
+            7: 1,
+            8: 1,
+        }
         MyGridLayout.press()
+
+    def update(self, x):
+        MapLayer.update(self.ids.map)
 
 
 class Button(Button):

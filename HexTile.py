@@ -7,10 +7,17 @@ ROTATION_ANGLE = 60
 
 # To move the 'camera,' the entire board is shifted.
 def moveMap(self, root):
+    characters = root.parent.parent.ids.characters
+    player = characters.children[0]
     x = (root.parent.size[0]/2) - (self.size[0]/2) - self.pos[0]
     y = (root.parent.size[1]/2) - self.pos[1]
     move = Animation(pos = [x , y], duration = .4)
     move.start(root)
+    walk = Animation(pos=[player.x - (x - root.x)/2,player.y - (y - root.y)/2], duration = .2) + Animation(pos=[round(characters.width / 2, 2) - 20, round(characters.height / 2, 2) + 30], duration = .2)
+    walk.start(player)
+    
+ 
+
 
 # Function to generate a new, random, tile.
 # It calculates its new angle and position based on the previous tile.

@@ -11,7 +11,7 @@ class MapLayer(RelativeLayout):
         self._keyboard.bind(
             on_key_down=self.on_keyboard_down, on_key_up=self.on_keyboard_up
         )
-        self.remainingTiles = {1: 4, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1}
+        self.remainingTiles = {1: 8, 2: 4, 3: 4, 4: 4, 5: 1, 6: 1, 7: 1, 8: 1}
 
     def _keyboard_closed(self):
         self._keyboard.unbind(on_key_down=self._on_keyboard_down)
@@ -46,20 +46,13 @@ class MapLayer(RelativeLayout):
     def update(self):
         if self.rightPressed:
             self.x -= 10
+            self.parent.parent.ids.characters.children[0].x -= 10
         if self.leftPressed:
             self.x += 10
+            self.parent.parent.ids.characters.children[0].x += 10
         if self.upPressed:
             self.y -= 10
+            self.parent.parent.ids.characters.children[0].y -= 10
         if self.downPressed:
             self.y += 10
-
-    # To move the 'camera,' the entire board is shifted.
-    def moveMap(self, tile):
-        move = Animation(
-            pos=[
-                ((self.size[0] / 2) - tile.pos[0] - tile.width / 2),
-                ((self.size[1] / 2) - tile.pos[1] - tile.width / 4),
-            ],
-            duration=0.4,
-        )
-        move.start(self)
+            self.parent.parent.ids.characters.children[0].y += 10

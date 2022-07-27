@@ -1,12 +1,14 @@
 <MyGridLayout>
     cols: 1 
-
+        
     FloatLayout:
         id: base
         MapLayer:
             id: map
             name: 'Layout'
-            
+        RelativeLayout:
+            id: characters
+
     GridLayout:
         rows: 1
         name: 'Menu'
@@ -34,6 +36,7 @@
     leftPressed: False
     upPressed: False
     downPressed: False
+
 <HexTile>:
     name: 'HexTile'
     adjacent: []
@@ -57,3 +60,9 @@
             origin: self.center
     canvas.after:
         PopMatrix
+
+<Player>:
+    name: 'Player'
+    source: 'SirCulito.png'
+    size_hint: None, None
+    

@@ -10,7 +10,7 @@ from kivy.properties import ObjectProperty
 from kivy.animation import Animation
 from HexTile import HexTile
 from MapLayer import MapLayer
-from kivy.config import Config
+from Player import Player
 from kivy.clock import Clock
 
 
@@ -25,37 +25,42 @@ class MyGridLayout(GridLayout):
         super().__init__(**kwargs)
         Clock.schedule_interval(self.update, 1.0 / 30.0)
 
-    def press(MyGridLayout):
+    def press(self):
         produce = Animation(opacity=1, duration=1)
-        child = MyGridLayout.ids.map
+        map = self.ids.map
+        characters = self.ids.characters
 
-        if child.children:
-            count(child)
+        if len(map.children) > 1:
+            count(map)
         else:
-            child.tiles = {child.width / 2 - 50: {}}
+            map.tiles = {map.width / 2 - 50: {}}
+            newPlayer = Player(pos=[round(characters.width / 2, 2) - 20, round(characters.height / 2, 2) + 30])
             newTile = HexTile(
-                child.tiles,
-                pos=[round(child.width / 2, 2) - 50, round(child.height / 2, 2)],
+                map.tiles,
+                pos=[round(map.width / 2, 2) - 50, round(map.height / 2, 2)],
             )
-            child.add_widget(newTile)
+            map.add_widget(newTile)
+            characters.add_widget(newPlayer)
             produce.start(
-                child.tiles[round(child.width / 2, 2) - 50][round(child.height / 2, 2)]
+                map.tiles[round(map.width / 2, 2) - 50][round(map.height / 2, 2)]
             )
 
-    def reset(MyGridLayout):
-        MyGridLayout.ids.map.clear_widgets()
-        MyGridLayout.ids.map.pos = [0, 0]
-        MyGridLayout.ids.map.remainingTiles = {
-            1: 4,
-            2: 1,
-            3: 1,
-            4: 1,
+    def reset(self):
+        map = self.ids.map
+        map.clear_widgets()
+        map.pos = [0, 0]
+        map.remainingTiles = {
+            1: 8,
+            2: 4,
+            3: 4,
+            4: 4,
             5: 1,
             6: 1,
             7: 1,
             8: 1,
         }
-        MyGridLayout.press()
+        self.ids.characters.clear_widgets()
+        self.press()
 
     def update(self, x):
         MapLayer.update(self.ids.map)

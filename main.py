@@ -22,7 +22,7 @@ def count(target):
 class MyGridLayout(GridLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        Clock.schedule_interval(self.update, 1.0 / 30.0)
+        Clock.schedule_interval(self.update, 1.0 / 60.0)
 
     def press(self):
         produce = Animation(opacity=1, duration=1)
@@ -71,7 +71,7 @@ class MyGridLayout(GridLayout):
         self.press()
 
     def update(self, x):
-        MapLayer.update(self.ids.map)
+        MovementLayer.update(self.ids.base)
 
 class Button(Button):
     Button_id = ObjectProperty(None)

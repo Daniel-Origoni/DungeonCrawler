@@ -1,83 +1,34 @@
 import math
 from random import randint
 from kivy.uix.relativelayout import RelativeLayout
-from kivy.core.window import Window
 from HexTile import HexTile
 ROTATION_ANGLE = 60
 
 class MapLayer(RelativeLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self._keyboard = Window.request_keyboard(self._keyboard_closed, self)
-        self._keyboard.bind(
-            on_key_down=self.on_keyboard_down, on_key_up=self.on_keyboard_up
-        )
         self.remainingTiles = {1: 8, 2: 4, 3: 4, 4: 4, 5: 1, 6: 1, 7: 1, 8: 1}
-
-    def _keyboard_closed(self):
-        self._keyboard.unbind(on_key_down=self._on_keyboard_down)
-        self._keyboard = None
-
-    def on_keyboard_down(self, keyboard, keycode, text, modifiers):
-        if keycode[1] == "d":
-            self.rightPressed = True
-        elif keycode[1] == "a":
-            self.leftPressed = True
-        elif keycode[1] == "w":
-            self.upPressed = True
-        elif keycode[1] == "s":
-            self.downPressed = True
-        else:
-            return False
-        return True
-
-    def on_keyboard_up(self, keyboard, keycode):
-        if keycode[1] == "d":
-            self.rightPressed = False
-        elif keycode[1] == "a":
-            self.leftPressed = False
-        elif keycode[1] == "w":
-            self.upPressed = False
-        elif keycode[1] == "s":
-            self.downPressed = False
-        else:
-            return False
-        return True
-
-    def update(self):
-        if self.rightPressed:
-            self.x -= 10
-            self.parent.parent.ids.characters.children[0].x -= 10
-        if self.leftPressed:
-            self.x += 10
-            self.parent.parent.ids.characters.children[0].x += 10
-        if self.upPressed:
-            self.y -= 10
-            self.parent.parent.ids.characters.children[0].y -= 10
-        if self.downPressed:
-            self.y += 10
-            self.parent.parent.ids.characters.children[0].y += 10
-
+        
     # Function to place a tile generated with generateTile() onto the board     
-    def createTile(self, hexTile, exitID):
+    def createTile(self, hexTile):
 
         for digit in str(hexTile.exitId):
             if digit == '0':
                 pass
             else: 
-                tile = generateTile(self, hexTile, exitID)
+                tile = generateTile(self, hexTile, int(digit))
 
-                if tile == None:
-                    return
-                else:    
-                    self.add_widget(HexTile(    self.tiles, 
-                                                source = 'hex' + str(tile["id"]) + '.png', 
-                                                pos = tile["position"], 
-                                                angle = tile["newAngle"], 
-                                                exitId = tile["exitId"], 
-                                                adjacent = [hexTile.pos]
-                                            ))
-                    hexTile.adjacent.append(tile["position"])
+            if tile == None:
+                return
+            else:    
+                self.add_widget(HexTile(    self.tiles, 
+                                            source = 'hex' + str(tile["id"]) + '.png', 
+                                            pos = tile["position"], 
+                                            angle = tile["newAngle"], 
+                                            exitId = tile["exitId"], 
+                                            adjacent = [hexTile.pos]
+                                        ))
+                hexTile.adjacent.append(tile["position"])
 
 # Function to generate a new, random, tile.
 # It calculates its new angle and position based on the previous tile. 
@@ -94,6 +45,9 @@ def generateTile(self, hexTile, exitID):
         "newAngle": 0,
     }
     
+    #exitID can be 1, 2 or 3; by substractig 2 and multiplying it by ROTATION_ANGLE (60 degrees) we get 60, 0 or -60,
+    #this number is referenced with the angle of the previous tile by adding or substracting 60, or keeping it the same.
+    #To the result we add 360 and get a 360 modulo to obtain a possitive angle on the new tile.
     angle = tile["newAngle"] = ((angle - (ROTATION_ANGLE * (exitID - 2)) + 360)%360)
 
     if (angle == 0):
@@ -113,13 +67,16 @@ def generateTile(self, hexTile, exitID):
 
     # Use the collides() function to find vacant spot on the board.
     #If the spot is taken by any of the tiles exit the loop
-
     if collides(self, tile["position"], hexTile, exitID):
         return
 
     print("Tiles remaining: " + str(len(remainingTiles)))
+
+
     if len(remainingTiles) == 0:
         return
+
+    #this loop adds up all remainig tiles from each kind into one total.     
     numberOfTiles = 0
     for typeOfTile in remainingTiles:
         numberOfTiles += (remainingTiles.get(typeOfTile))
@@ -127,6 +84,7 @@ def generateTile(self, hexTile, exitID):
     tileNumber = randint(1, numberOfTiles)
 
     print("Tile number: " + str(tileNumber))
+
     for typeOfTile in remainingTiles:
         if remainingTiles.get(typeOfTile) < tileNumber:
             tileNumber -= remainingTiles.get(typeOfTile)
@@ -150,9 +108,8 @@ def generateTile(self, hexTile, exitID):
     return tile
 
 
-# Function to calculate if the new tile 
-# would be placed on top of another and
-# if the tiles have matching exits 
+# Function to calculate if the new tile would be placed on top of another
+# and if the tiles have connecting exits 
 def collides(self, position, hexTile, exitID):
     angle = hexTile.angle
 

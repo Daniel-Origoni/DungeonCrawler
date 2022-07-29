@@ -19,19 +19,12 @@ class HexTile(ButtonBehavior, Image):
         mapLayer = self.parent
         movementLayer = mapLayer.parent
 
-        if movementLayer.isMoving:
-            return
-
-        if(self.active):
+        if(not self.disabled and not movementLayer.isMoving):
             movementLayer.moveMap(self)
             
             if not self.isParent:
-                for digit in str(self.exitId):
-                    if digit == '0':
-                        pass
-                    else: 
-                        mapLayer.createTile(self, int(digit))
-                        self.isParent = True
+                mapLayer.createTile(self)
+                self.isParent = True
 
             for tile in self.adjacent:
                 adjacentTile = self.parent.tiles[tile[0]][tile[1]]
@@ -40,9 +33,9 @@ class HexTile(ButtonBehavior, Image):
                     for origTileAdj in adjacentTile.adjacent:
                         originalTile = self.parent.tiles[origTileAdj[0]][origTileAdj[1]]
                         if originalTile != self:
-                            originalTile.active = False
+                            originalTile.disabled = True
                             deactivate.start(originalTile)
-                adjacentTile.active = True
+                adjacentTile.disabled = False
                 activateAdjacent.start(adjacentTile)
             self.current = True
             activateCurrent.start(self)

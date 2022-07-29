@@ -11,7 +11,7 @@ class MapLayer(RelativeLayout):
         
     # Function to place a tile generated with generateTile() onto the board     
     def createTile(self, hexTile):
-
+        tile = None
         for digit in str(hexTile.exitId):
             if digit == '0':
                 pass

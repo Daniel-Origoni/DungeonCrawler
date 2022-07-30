@@ -6,12 +6,13 @@ from kivy.app import App
 from kivy.core.window import Window
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.button import Button
+from kivy.uix.popup import Popup
 from kivy.properties import ObjectProperty
 from kivy.animation import Animation
-from HexTile import HexTile
-from MapLayer import MapLayer
+from MapLayer import HexTile
 from Player import Player
 from MovementLayer import MovementLayer
+from CharacterSheet import CharacterSheet
 from kivy.clock import Clock
 
 # Function to count the hex Tiles
@@ -69,6 +70,10 @@ class MyGridLayout(GridLayout):
         charactersLayer.pos = [0,0]
         player.pos = [0,0]
         self.press()
+
+    def popUp(self):
+        popup = Popup(title='Sir Culito', content=CharacterSheet(), size_hint=(.75, .75))
+        popup.open()
 
     def update(self, x):
         MovementLayer.update(self.ids.base)

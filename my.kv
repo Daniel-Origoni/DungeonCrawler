@@ -3,9 +3,10 @@
         
     MovementLayer:
         id: base
+
         MapLayer:
             id: map
-            name: 'Layout'
+
         RelativeLayout:
             id: characters
 
@@ -28,6 +29,14 @@
             text: 'Reset'
             font_size: 32
             on_press:  root.reset()
+            size_hint: None, 1
+            size_x: 100
+
+        Button:
+            name: 'Character'
+            text: 'Culito'
+            font_size: 32
+            on_press:  root.popUp()
             size_hint: None, 1
             size_x: 100
 
@@ -58,3 +67,15 @@
     source: 'SirCulito.png'
     size_hint: None, None
     
+<CharacterSheet>:
+    orientation: 'horizontal'
+    size_hit: 1
+
+<Slot>:
+    background_color: (.5, .5, .5, 1)
+    canvas.before:
+        Color:
+            rgba: self.background_color
+        Rectangle:
+            size: self.size
+            pos: self.pos

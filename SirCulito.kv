@@ -1,3 +1,15 @@
+WindowManager:
+    MapWindow:
+    InventoryWindow:
+
+<MapWindow>:
+    name: "first"
+    MyGridLayout:
+
+<InventoryWindow>:
+    name: "second"
+    CharacterSheet
+
 <MyGridLayout>
     cols: 1 
         
@@ -36,13 +48,14 @@
             name: 'Character'
             text: 'Culito'
             font_size: 32
-            on_press:  root.popUp()
+            on_release:  app.root.current = "second"
             size_hint: None, 1
             size_x: 100
 
 <HexTile>:
     name: 'HexTile'
     adjacent: []
+    level: 0
     angle: 0
     exitId: 123
     isParent: False
@@ -66,16 +79,19 @@
 <Player>:
     source: 'SirCulito.png'
     size_hint: None, None
-    
-<CharacterSheet>:
-    orientation: 'horizontal'
-    size_hit: 1
 
 <Slot>:
+    txt: ""
+    src: "SirCulito.png"
     background_color: (.5, .5, .5, 1)
-    canvas.before:
-        Color:
-            rgba: self.background_color
-        Rectangle:
-            size: self.size
-            pos: self.pos
+    Item:
+        source: self.parent.src
+        center: self.parent.center
+    Label:
+        text: self.parent.txt
+        center: self.parent.center
+
+<Item>:
+    on_press: root.parent.press()
+    
+

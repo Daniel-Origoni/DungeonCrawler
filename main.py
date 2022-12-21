@@ -2,11 +2,14 @@
 # By @Daniel-Origoni
 
 # import dependancies
+import math
 from kivy.app import App
+from kivy.lang import Builder
 from kivy.core.window import Window
+from kivy.config import Config
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.button import Button
-from kivy.uix.popup import Popup
+from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.properties import ObjectProperty
 from kivy.animation import Animation
 from MapLayer import HexTile
@@ -15,10 +18,21 @@ from MovementLayer import MovementLayer
 from CharacterSheet import CharacterSheet
 from kivy.clock import Clock
 
+Config.set('graphics', 'resizable', False)
+
 # Function to count the hex Tiles
 # Used for debuging
 def count(target):
     print(len(target.children))
+
+class MapWindow(Screen):
+    pass
+
+class InventoryWindow(Screen):
+    pass
+
+class WindowManager(ScreenManager):
+    pass
 
 class MyGridLayout(GridLayout):
     def __init__(self, **kwargs):
@@ -56,24 +70,13 @@ class MyGridLayout(GridLayout):
         player = charactersLayer.children[0]
         map.clear_widgets()
         map.pos = [0, 0]
-        map.remainingTiles = {
-            1: 8,
-            2: 4,
-            3: 4,
-            4: 4,
-            5: 1,
-            6: 1,
-            7: 1,
-            8: 1,
-        }
+        self.remainingTiles = {1: 0, 2: 0, 3: 0, 4: 0, 5: 2, 6: 2, 7: 2, 8: 5}
+        self.remainingTiles[1] = self.remainingTiles[8] * 2 + self.remainingTiles[5] + self.remainingTiles[6] + self.remainingTiles[7] + 3
+        self.remainingTiles[2] = self.remainingTiles[3] = self.remainingTiles[4] = (self.remainingTiles[1] - (self.remainingTiles[5] + self.remainingTiles[6] + self.remainingTiles[7]))
         charactersLayer.clear_widgets()
         charactersLayer.pos = [0,0]
         player.pos = [0,0]
         self.press()
-
-    def popUp(self):
-        popup = Popup(title='Sir Culito', content=CharacterSheet(), size_hint=(.75, .75))
-        popup.open()
 
     def update(self, x):
         MovementLayer.update(self.ids.base)
@@ -82,11 +85,13 @@ class Button(Button):
     Button_id = ObjectProperty(None)
     pass
 
+kv = Builder.load_file('SirCulito.kv')
+
 class MyApp(App):
     def build(self):
         Window.clearcolor = (0, 0, 0, 1)
-        Window.maximize()
-        return MyGridLayout()
+        #Window.fullscreen = 'auto'
+        return kv
 
 if __name__ == "__main__":
     MyApp().run()
